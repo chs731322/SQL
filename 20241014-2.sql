@@ -1,0 +1,241 @@
+-- 함수
+-- DUAL : 임시 테이블, 값을 확인하는 용도(함수 결과값, 계산 결과값)
+-- SYSDATE : 현재 날짜 시간값
+
+SELECT 'HELLO', 10 + 2 FROM DUAL;
+SELECT SYSDATE FROM DUAL;
+
+-- 문자열 데이터
+-- INITCAP : 각 단어별 첫 글자는 대문자로 변환, 나머지는 소문자로 변환
+SELECT INITCAP('hello world') FROM DUAL; 
+SELECT INITCAP('HELLO WORLD') FROM DUAL; 
+
+-- LOWER : 알파벳 전부 소문자로 변경
+-- UPPER : 알파벳 전부 대문자로 변경
+SELECT LOWER('Hello World'), UPPER('Hello World') FROM DUAL; 
+
+-- LENGTH : 글자 개수
+SELECT LENGTH ('Hello'), LENGTH ('안녕하세요') FROM DUAL; 
+-- LENGTHB : 글자의 바이트 수
+SELECT LENGTHB ('Hello'), LENGTHB ('안녕하세요') FROM DUAL; 
+
+-- PERSON 테이블에서 이름의 글자 개수와 글자의 바이트 수를 출력
+-- 김철수 3 9
+SELECT PNAME, LENGTH(PNAME) , LENGTHB(PNAME) FROM PERSON;
+
+-- PERSON 테이블에서 PAGE에 있는 NULL 값을 가진 행을 조회
+SELECT * FROM PERSON WHERE PAGE IS NULL;
+
+
+-- INSTR : 문자열 검색, 검색결과가 있으면 0보다 큰 값, 검색 결과가 없으면 0
+SELECT INSTR('ABCDEFG','CD') FROM DUAL;  --3
+SELECT INSTR('ABCDEFG','CDF') FROM DUAL; --0
+
+-- 문자열 공백 체크
+SELECT INSTR('HELLO WORLD',' ') FROM DUAL;
+
+-- 테이블의 NAME 컬럼에 공백을 넣지 않는 조건
+DROP TABLE PERSON;
+
+CREATE TABLE PERSON(
+	PNAME VARCHAR2(30),
+	PAGE NUMBER(3),
+	CONSTRAINT CHK_NAME CHECK(INSTR(PNAME, ' ') = 0),
+	CONSTRAINT CHK_AGE CHECK(PAGE > 0)
+);
+
+INSERT INTO PERSON VALUES('김철수', 10);
+INSERT INTO PERSON VALUES('김  철수', 10);
+INSERT INTO PERSON VALUES('김철수', 0);
+
+SELECT * FROM USER_CONSTRAINTS;
+
+-- 문자열 바꾸기
+SELECT REPLACE('AAAAAABBBBBBBCCCCC','B','F') FROM DUAL;
+
+-- 학생 테이블의 학과명을 공학을 학으로 변경하는 UPDATE문을 작성
+-- 학과명에 공학이 있는 경우에만 동작
+UPDATE STUDENT SET MAJOR_NAME = REPLACE(MAJOR_NAME, '공학','학') WHERE INSTR(MAJOR_NAME ,'공학') <> 0;
+
+-- LPAD, RPAD : 원하는 문자열 개수만큼 남은 부분에 지정한 문자열로 채워주는 함수
+SELECT LPAD('991122-1',14,'*') FROM DUAL;
+SELECT RPAD('991122-1',14,'*') FROM DUAL;
+
+SELECT LPAD('ABC',10,'1234') FROM DUAL;
+SELECT RPAD('ABC',10,'1234') FROM DUAL;
+
+-- TRIM : 좌우 공백 제거
+SELECT TRIM('     A      B      C     '),'     A      B      C     ' FROM DUAL;
+
+SELECT LENGTH(TRIM('     A      B      C     ')), LENGTH('     A      B      C     ') FROM DUAL;
+
+-- LTRIM, RTRIM : 좌우에 지정한 문자열을 제거
+SELECT LTRIM('AAAABBBBBBBCCCCCCCCCCCCDDDDDDAAAAAAAA','A') FROM DUAL;
+SELECT RTRIM('AAAABBBBBBBCCCCCCCCCCCCDDDDDDAAAAAAAA','A') FROM DUAL;
+
+SELECT LTRIM('AABAACBBBBBCCCCCDDDDDDAAAAA','ABC') FROM DUAL;
+SELECT RTRIM('AAABACBBBBBCCCCCDDDDDDAACABAA','ABC') FROM DUAL;
+
+-- CONCAT : 두 문자열을 하나로 합치기
+SELECT CONCAT('HELLO','WORLD') FROM DUAL;
+SELECT 'HELLO' || 'WORLD' FROM DUAL;
+
+-- SUBSTR : 문자열 부분 추출(문자 기준으로 추출)
+SELECT SUBSTR('1234567890', 5,4) FROM DUAL; --5678
+SELECT SUBSTR('안녕하세요', 2,3) FROM DUAL;		--녕하세
+
+-- 바이트 단위로 문자열 추출
+SELECT SUBSTRB('안녕하세요', 2,3) FROM DUAL;	--   
+SELECT SUBSTRB('ABCDEFG', 2,3) FROM DUAL;	--BCD
+
+-----------------------------------------------------------------------
+
+-- ROUND(숫자, 자릿수) : 원하는 자릿수에서 반올림
+--   -2 -1   0 1 2
+-- 1  2  3 . 4 5 6
+SELECT ROUND(123.456,-2) FROM DUAL; --100
+SELECT ROUND(123.456,-1) FROM DUAL; --120
+SELECT ROUND(123.456,0) FROM DUAL; --123
+SELECT ROUND(123.456,1) FROM DUAL; --123.5
+SELECT ROUND(123.456,2) FROM DUAL; --123.46
+
+-- CEIL : 올림, FLOOR : 내림
+SELECT CEIL(123.456), FLOOR(123.456) FROM DUAL;
+
+-- TRUNC : 원하는 자릿수에서 데이터를 자름
+SELECT TRUNC(123.456,-2) FROM DUAL; --100
+SELECT TRUNC(123.456,-1) FROM DUAL; --120
+SELECT TRUNC(123.456,0) FROM DUAL; --123
+SELECT TRUNC(123.456,1) FROM DUAL; --123.4
+SELECT TRUNC(123.456,2) FROM DUAL; --123.45
+
+-- MOD : 나머지 나누기
+SELECT MOD(6,4) FROM DUAL;
+
+-- POWER : n제곱
+SELECT POWER(2,10) FROM DUAL;
+
+
+SELECT 123 + '123', '123' / '3' FROM DUAL;
+SELECT TO_NUMBER('123') / '3' FROM DUAL; -- 형변환
+
+-------------------------------------------------------
+
+-- 날짜시간
+SELECT SYSDATE FROM DUAL;
+
+-- 오라클에서 지정된 현재 날짜 시간의 출력 포멧을 변경 - 현재 연결된 세션에서만 가능
+ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
+ALTER SESSION SET NLS_DATE_FORMAT = 'YY/MM/DD';
+
+-- TO_CHAR(데이터, '형식') 문자열로 변환
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS'), TO_CHAR(SYSDATE,'YYYY-MM-DD HH24:MI:SS') FROM DUAL;
+
+SELECT TO_CHAR(SYSDATE, 'MON MONTH DY DAY') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'MON MONTH DY DAY','NLS_DATE_LANGUAGE=ENGLISH') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS') FROM DUAL;
+SELECT TO_CHAR(TO_DATE('2024-10-15 15:00:11','YYYY-MM-DD HH24:MI:SS'),'Q YYYY-MM-DD HH:MI:SS AM') FROM DUAL;
+
+
+-- 숫자 포멧
+-- 9 : 숫자 한 자리, 자리가 없으면 공백
+-- 0 : 숫자 한 자리, 자리가 없으면 0으로 채움
+SELECT TO_CHAR(1234567.89,'99999999.000') FROM DUAL;
+-- L : 통화 기호(지역 설정 기준)
+SELECT TO_CHAR(1234567.89,'L99999999.000') FROM DUAL;
+-- $ : 통화 기호(달러)
+SELECT TO_CHAR(1234567.89,'$99999999.000') FROM DUAL;
+-- , : 천 단위 구분 기호, . : 소수점 기호
+SELECT TO_CHAR(1234567.89,'L99,999,999.000') FROM DUAL;
+SELECT TO_CHAR(1234567.89,'$99,999,999.000') FROM DUAL;
+-- G : 천 단위 구분 기호, D : 소수점 기호
+SELECT TO_CHAR(1234567.89,'L99G999G999D000') FROM DUAL;
+-- FM : 불필요한 공백 제거
+SELECT TO_CHAR(1234567.89,'99999999.000') FROM DUAL;
+SELECT TO_CHAR(1234567.89,'FM99999999.000') FROM DUAL;
+-- PR : 음수일 때 <> 묶어서 표현, S : + - 부호 표시
+SELECT TO_CHAR(-1234567,'S9,999,999') FROM DUAL; -- -1,234,567 
+SELECT TO_CHAR(1234567,'S9,999,999') FROM DUAL;	 -- +1,234,567 
+SELECT TO_CHAR(-1234567,'9,999,999PR') FROM DUAL;-- <1,234,567>
+SELECT TO_CHAR(1234567,'9,999,999PR') FROM DUAL; -- 1,234,567
+
+-- 문자열을 날짜로 변경
+SELECT TO_DATE('2020-11-11', 'YYYY-MM-DD') FROM DUAL;
+
+-- 오늘 날짜부터 지정된 날짜까지 남은 개월 수
+SELECT ABS(MONTHS_BETWEEN(SYSDATE,'2024-12-31')) FROM DUAL;
+
+-- 지정 날짜부터 몇 개월 후
+SELECT ADD_MONTHS(SYSDATE,2) FROM DUAL; 
+
+-- 지정 날짜 기준으로 돌아오는 날짜(원하는 요일)
+SELECT NEXT_DAY(SYSDATE,'수') FROM DUAL; 
+SELECT NEXT_DAY(SYSDATE,'월') FROM DUAL; 
+
+-- 지정 날짜 기준으로 해당 달의 마지막 날
+SELECT LAST_DAY(SYSDATE) FROM DUAL; 
+
+-- 내일 날짜 출력
+SELECT SYSDATE + 1 FROM DUAL;
+
+-- 올해 수능날 D-DAY 출력 : 30 11/14
+SELECT CEIL(TO_DATE('2024-11-14', 'YYYY-MM-DD') - SYSDATE) FROM DUAL;
+
+-- 윈도우 함수
+-- OVER, PARTITION BY, ORDER BY
+-- 순위
+SELECT RANK() OVER(ORDER BY PAGE) AS RANK, P.* FROM PERSON P;
+SELECT RANK() OVER(ORDER BY PAGE DESC) AS RANK, P.* FROM PERSON P;
+SELECT DENSE_RANK() OVER(ORDER BY PAGE) AS RANK, P.* FROM PERSON P;
+SELECT DENSE_RANK() OVER(ORDER BY PAGE DESC) AS RANK, P.* FROM PERSON P;
+SELECT ROW_NUMBER() OVER(ORDER BY PAGE) AS RW, P.* FROM PERSON P;
+SELECT ROW_NUMBER() OVER(ORDER BY PAGE DESC) AS RW, P.* FROM PERSON P;
+
+SELECT ROW_NUMBER() OVER(ORDER BY PAGE DESC) AS RW, DENSE_RANK() OVER(ORDER BY PAGE ASC) AS RANK , P.* FROM PERSON P;
+
+-- 현재 행을 기준으로 다음 위치에 해당하는 값을 읽어오는 함수
+SELECT P.*, LEAD(PNAME,2,'데이터 없음') OVER(ORDER BY PAGE) FROM PERSON P;
+-- 현재 행을 기준으로 이전 위치에 해당하는 값을 읽어오는 함수
+SELECT P.*, LAG(PNAME,2,'데이터 없음') OVER(ORDER BY PAGE) FROM PERSON P;
+
+-- 학생 테이블의 평점을 기준으로 성적 순위를 출력, 성적순은 내림차순으로 처리, 순위는 건너뛰지 않음
+SELECT DENSE_RANK() OVER(ORDER BY STD_SCORE DESC) AS 성적순, S.* FROM STUDENT S;
+
+
+-- 학생 테이블에서 학생 정보 조회 시
+-- 학번의 경우 앞의 4자리만 표현하고 나머지 4자리는 마스킹 처리해서 조회
+SELECT SUBSTR(S.STD_NO, 1, 4) || '****' AS 학번, S.STD_NAME, S.MAJOR_NAME, S.STD_SCORE FROM STUDENT S;
+
+-- 사원 테이블에서 데이터 조회 시 연봉 순위를 조회, 입사일은 입사년도만 출력
+-- 연봉 출력 시 천 단위 기호가 붙게 처리
+SELECT DENSE_RANK() OVER(ORDER BY E.SALARY DESC) AS 연봉순위, E.NO, E.NAME, E.POSITION, E.DEPARTMENT, 
+TO_CHAR(E.SALARY,'99,999,999') AS 연봉 , TO_CHAR(E.JOIN_DATE, 'YYYY') AS 입사년도 FROM EMPLOYEE E;
+
+-- 학생 테이블에서 성씨별로 점수 순위를 내림차순 기준으로 조회
+-- 출력 형태는 아래와 같이 조회, 순위는 건너뛰지 않음
+-- 순위 학번 성씨 학과명 평점
+SELECT DENSE_RANK() OVER(ORDER BY S.STD_SCORE DESC) AS 순위, S.STD_NO AS 학번, SUBSTR(S.STD_NAME, 1, 1) AS 성, 
+S.MAJOR_NAME AS 학과, S.STD_SCORE AS 점수  FROM STUDENT S;
+
+SELECT DENSE_RANK() OVER (PARTITION BY SUBSTR(S.STD_NO, 1, 1) ORDER BY S.STD_SCORE DESC) AS 순위, S.STD_NO AS 학번, SUBSTR(S.STD_NAME, 1, 1) AS 성, 
+S.MAJOR_NAME AS 학과, S.STD_SCORE AS 점수  FROM STUDENT S;
+
+
+
+
+----------------------------------------------------
+
+
+--NULL 값 처리하는 함수
+--첫번째 값이 NULL일때 두번째 값을 리턴, NULL이 아니면 그냥 현재값을 리턴
+SELECT NVL(NULL,'널값'), NVL('100','널값') FROM DUAL;
+--첫번째 값이 NULL일때 3번째 값을 리턴, NULL이 아닐때 2번째 값을 리턴
+SELECT NVL2(NULL,'널이 아닐때 값','널일때 값'), 
+	NVL2('100','널이 아닐때 값','널일때 값') 
+FROM DUAL;
+-- 첫번째 값을 가지고 매칭 되는 값의 오른쪽에 있는 데이터를 리턴
+-- 매칭 되는 값이 없으면 마지막 값을 리턴
+SELECT DECODE(1,1,'A',2,'B','C') FROM DUAL; 
+SELECT DECODE(2,1,'A',2,'B','C') FROM DUAL; 
+SELECT DECODE(4,1,'A',2,'B',3,'C',4,'D','F') FROM DUAL; 
+
